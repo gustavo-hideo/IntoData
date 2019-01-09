@@ -1,0 +1,18 @@
+# Chapter 1
+<br>
+
+### Supervised learning
+A training set of examples with targets (correct responses). <br>
+The algorithm is based on this set to generalise correct responses. <br>
+It's also called learning from "exemplars".<br>
+
+### Unsupervised learning
+Correct answers are not provided, but the algorithm tries to identify similarities between inputs to categorise inputs together. <br>
+The statistical approach to unsupervised learning is known as **density estimation**.<br>
+
+### Reinforcement learning
+The algorithm gets told when the answer is incorrect, and try different possibilities until gets the right answer. <br>
+
+### Evolutionary learning
+The algorithm adapts to improve itself. <br>
+
