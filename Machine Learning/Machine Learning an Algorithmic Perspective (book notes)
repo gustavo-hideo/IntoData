@@ -169,6 +169,38 @@ The idea behind **KD-Trees** is very simple. You create a binary tree by choosin
 
 
 
+
+
+#######################################################################
+
+
+# Supervised Learning
+
+There is a set of data (**the training data**) that consists of a set of input data that has **target** data, which is the answer that the algorithm should produce.<br>
+<br>
+
+
+## Regression
+
+Regression tries to give value for `y` based on the values of `x`, describind a curve that will pass as close as possible to all the datapoints, predicting `y` for `x's` that we do not exist.<br>
+<br>
+
+
+## Classification
+
+Classification consists in taking input vectors and deciding which of `N` classes they belong to, based on training from **exemplars** of each class. The different classes are separated by decision bondaries.<br>
+The input vectors are the attributes that identifies the observation to a group. These attributes are numerics.<br>
+It's not wise to use too many input vectors, otherwise the training of the classifier will take too long and the number of datapoints required will increase. 
+
+
+
+
+
+
+
+
+
+
 ##################################################
 
 
