@@ -54,7 +54,7 @@ class HardCodedClassifier:
 
 
 # LOAD DATA
-iris = pd.read_csv("C:\\Users\\Gustavo\\iCloudDrive\\Data Science\\Machine Learning\\CS 450 - Machine Learning and Data Mining\\W01\\iris.csv", header = None)
+iris = pd.read_csv("C:\\DataScience\\Datasets\\CS 450\\iris.csv", header = None)
 
 
 # SPLIT INTO DATA AND TARGETS
