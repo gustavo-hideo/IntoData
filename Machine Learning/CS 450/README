@@ -1,1 +1,6 @@
+# CS 450 | Machine Learning & Data Mining
+### Brigham Young University - Idaho
+<br>
 
+#### 01 prove - HardCodedClassifier
+Simple model that accepts a dataset and returns 0's as targets.
