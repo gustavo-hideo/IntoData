@@ -1,5 +1,6 @@
 # CS 450 | Machine Learning & Data Mining
 ### Brigham Young University - Idaho
+##### Gustavo Hideo Higa Correa
 <br>
 
 #### 01 prove - HardCodedClassifier
