@@ -47,8 +47,8 @@ class KNeighborsClassifier:
 # LOAD DATA
 #iris = pd.read_csv("C:\\DataScience\\Datasets\\CS 450\\iris.csv", header = True)
 iris = datasets.load_iris()
-x = pd.DataFrame(iris.data)
-y = pd.Series(iris.target)
+x = iris.data
+y = iris.target
 
 
 
