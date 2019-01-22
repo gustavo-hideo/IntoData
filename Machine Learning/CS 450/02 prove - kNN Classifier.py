@@ -64,7 +64,8 @@ y = pd.Series(iris.target)
 # 5.5  3.5  1.3  0.2
 
 # SPLITING INTO TRAINING AND TESTING DATASETS
-#x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3)
+#
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.3)
 #print(x_train) # [5.3 3.7 1.5 0.2] # [7.2 3.2 6.  1.8]     last # [5.7 3.  4.2 1.2]
 #print(x_test)  # [6.9 3.1 5.1 2.3] # [6.3 3.4 5.6 2.4]     last # [6.5 2.8 4.6 1.5]
 
