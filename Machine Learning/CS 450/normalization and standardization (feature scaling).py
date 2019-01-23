@@ -1,4 +1,5 @@
 # NORMALIZATION AND STANDARDIZATION (FEATURE SCALLING)
+#http://sebastianraschka.com/Articles/2014_about_feature_scaling.html
 
 import pandas as pd
 import numpy as np
