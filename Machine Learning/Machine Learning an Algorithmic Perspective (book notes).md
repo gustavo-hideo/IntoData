@@ -233,6 +233,7 @@ examples of that class there are (in any bin). <br><br>
 
 ### Bayes' rule
 P(C_{i},X_{j}) = P(X_{j}|C_{i})P(C_{i}
+![Bayers' rule 1](http://www.sciweavers.org/upload/Tex2Img_1549290263/render.png)
 
 
 
