@@ -232,8 +232,15 @@ from the histogram by counting the number of examples of class 'Ci' in histogram
 examples of that class there are (in any bin). <br><br>
 
 ### Bayes' rule
-P(C_{i},X_{j}) = P(X_{j}|C_{i})P(C_{i}
-![Bayers' rule 1](http://www.sciweavers.org/upload/Tex2Img_1549290263/render.png)
+Bayers' rule: <br>
+![Bayers' rule 1](http://www.sciweavers.org/upload/Tex2Img_1549290263/render.png) <br>
+or ![Bayers' rule 2](http://www.sciweavers.org/upload/Tex2Img_1549290457/render.png) <br>
+resulting in:<br>
+![Bayers' rule 3](http://www.sciweavers.org/upload/Tex2Img_1549290605/render.png) <br>
+
+
+### MAP
+The **MAP** question is what is the most likely class given the training data? Suppose that there are three possible output classes, and for a particular input the posterior probabilities of the classes are P ( C 1 | x ) = 0 . 35 , P ( C 2 | x ) = 0 . 45 , P ( C 3 | x ) = 0 . 2 . The MAP hypothesis therefore tells us that this input is in class C 2 , because that is the class with the highest posterior probability. Now suppose that, based on the class that the data is in, we want to do something. If the class is C 1 or C 3 then we do action 1, and if the class is C 2 then we do action 2. As an example, suppose that the inputs are the results of a blood test, the three classes are different possible diseases, and the output is whether or not to treat with a particular antibiotic. The MAP method has told us that the output is C 2 , and so we will not treat the disease. But what is the probability that it does not belong to class C 2 , and so should have been treated with the antibiotic? It is 1 − P ( C 2 ) = 0 . 55 . So the MAP prediction seems to be wrong: we should treat with antibiotic, because overall it is more likely. This method where we take into account the final outcomes of all of the classes is called the **Bayes’ Optimal Classification** . It minimises the probability of misclassification, rather than maximising the posterior probability.
 
 
 
