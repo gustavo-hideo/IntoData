@@ -91,8 +91,8 @@ x_test_std = std_scale.transform(x_test)
 
 # CLASSIFICATION kNN
 classifier = KNeighborsClassifier(n_neighbors=3)
-classifier.fit(x_train, y_train)
-predictions = classifier.predict(x_test)
+classifier.fit(x_train_std, y_train)
+predictions = classifier.predict(x_test_std)
 
 # ACCURACY
 print("\n Prediction for car: \n {}" .format(metrics.accuracy_score(y_test, predictions)))
@@ -122,8 +122,8 @@ x_test_std = std_scale.transform(x_test)
 
 # REGRESSION
 regr = KNeighborsRegressor(n_neighbors=3)
-regr.fit(x_train, y_train)
-predictions = regr.predict(x_test)
+regr.fit(x_train_std, y_train)
+predictions = regr.predict(x_test_std)
 
 # ACCURACY
 print("\n Prediction for mpg: \n {}" .format(metrics.r2_score(y_test, predictions)))
@@ -183,8 +183,8 @@ x_test_std = std_scale.transform(x_test)
 
 # REGRESSION
 regr = KNeighborsRegressor(n_neighbors=3)
-regr.fit(x_train, y_train)
-predictions = regr.predict(x_test)
+regr.fit(x_train_std, y_train)
+predictions = regr.predict(x_test_std)
 
 # ACCURACY
 score = []
