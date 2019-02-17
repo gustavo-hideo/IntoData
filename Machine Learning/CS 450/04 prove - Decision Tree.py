@@ -5,6 +5,7 @@ EXPERIMENTATION
 guide: https://scikit-learn.org/stable/modules/tree.html
 """
 
+from dfply import *
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split    # split in train and test
@@ -14,6 +15,7 @@ from sklearn import metrics     # accuracy_score
 import graphviz   # plot trees
 import datetime as dt
 import matplotlib.pyplot as plt
+import datadotworld as dw   # Load datasets
 
 #pd.set_option('expand_frame_repr', False)     # show all variables when printing a dataset
 
@@ -25,7 +27,8 @@ import matplotlib.pyplot as plt
 #####################
 
 # LOADING DATA
-heart = pd.read_csv("C:/DataScience/Datasets/Biology/heart disease uci/heart.csv")
+# heart = pd.read_csv("C:/DataScience/Datasets/Biology/heart disease uci/heart.csv")
+heart = dw.load_dataset('gustavo-hideo/byui-cs-450', auto_update = True).dataframes['heart']
 heart = heart[['age','sex','cp','chol','target']]  # using only "important" features after running "feature_important_"
 
 xheart = np.array(heart)[:,0:len(heart.columns)-1]   # x | data
@@ -95,7 +98,8 @@ Caesarian { 0,1 } -> {0 = No, 1 = Yes }
 """
 
 # LOADING DATA
-cesarean = pd.read_csv('C:/DataScience/Datasets/Biology/cesarean uci/cesarean.csv')
+#cesarean = pd.read_csv('C:/DataScience/Datasets/Biology/cesarean uci/cesarean.csv')
+cesarean = dw.load_dataset('gustavo-hideo/byui-cs-450', auto_update = True).dataframes['cesarean']
 cesarean = cesarean[['HeartProblem','DeliveryTime','Caesarian']]
 
 xcesarean = np.array(cesarean)[:,0:len(cesarean.columns)-1]   # x | data
@@ -156,8 +160,8 @@ plt.show()
 # USE MORE DATA (2000-2018 MAYBE...)
 
 # LOADING DATA
-weather = pd.read_csv("C:/DataScience/Datasets/weather/rexburg1940-2018.csv")
-
+#weather = pd.read_csv("C:/DataScience/Datasets/weather/rexburg1940-2018.csv")
+weather = dw.load_dataset('gustavo-hideo/byui-cs-450', auto_update = True).dataframes['rexburg1940_2018']
 rexburg = weather[weather['NAME'].str.contains("REXBURG")]
 rexburg = rexburg.dropna(subset=['TMIN'])   # removing nulls TMIN
 #pd.options.mode.chained_assignment = None  # avoid warning for converting string to datetime bellow
