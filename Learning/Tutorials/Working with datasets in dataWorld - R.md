@@ -45,7 +45,7 @@ create_mtcars_file <- dwapi::file_create_request(
 )
 ```
 
-## **Creating a project
+## **Creating a project**
 ```r
 create_cars_project <- dwapi::project_create_request(
     title = "Cars project",
