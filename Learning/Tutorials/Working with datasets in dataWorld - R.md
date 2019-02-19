@@ -6,7 +6,6 @@
 ## **Library**
 ```r
 #devtools::install_github("datadotworld/data.world-r", build_vignettes = TRUE)
-library(tidyverse)
 library(data.world)
 ```
 
