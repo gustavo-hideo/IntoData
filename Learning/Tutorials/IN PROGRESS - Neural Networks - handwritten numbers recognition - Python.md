@@ -87,7 +87,29 @@ Compilation defines the learning process. It has three arguments:
 * **loss function**
 * **list of metrics**
 
+```python
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy']
+              )
+```
+
 <br>
+
+
+## **Fitting the model** | training
+```python
+model.fit(x_train, y_train, epochs=8)   
+```
+
+<br>
+
+
+## **Evaluating score**
+```python
+model.evaluate(x_test, y_test)
+```
+
 
 ## Complete guide for **Keras Sequential** model
 [Reference](https://keras.io/getting-started/sequential-model-guide/)
