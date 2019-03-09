@@ -1,0 +1,92 @@
+---
+title: "Petrobras Corruption Scandal"
+author: "Gustavo Hideo Higa Correa"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:  
+    keep_md: true
+    #toc: true
+    #toc_float: true
+    code_folding: hide
+    fig_height: 6
+    fig_width: 12
+    fig_align: 'center'
+    theme: cosmo
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+Learn more about `Petrobras scandal` and `Lava Jato` operation [here](https://www.ft.com/content/6e8b0e28-f728-11e5-803c-d27c7117d132)
+
+
+```{r, include=FALSE, echo=FALSE}
+#https://www.ft.com/content/850711b6-ac78-11e4-9d32-00144feab7de
+#https://www.reuters.com/article/brazil-petrobras-idUSL1N10O31F20150814
+```
+
+```{r}
+library(tidyverse)
+library(tidyquant)
+library(dygraphs)
+
+
+stocks <- c("PBR")
+invest <- stocks %>%
+  tq_get(get = "stock.prices"
+         ,from = "2003-01-01"
+         ,to = today()) %>%
+  select(date, close)
+
+
+
+
+invest.a <- xts(invest$close, order.by = invest$date)
+```
+
+
+
+# Reflection of Lava Jato Operation (Car Wash) and important events in Brazil on PBR stocks
+### <span style ="color:red">Red period:</span> $29$ arrests related to scandal
+
+```{r}
+invest.a %>%
+  dygraph() %>% 
+  dySeries(label = "Close", fillGraph = T, axis = "y", color = "#27AE60") %>% 
+  dyOptions(drawGrid = F) %>%   # removing grids and avoid scientific notation
+  dyAxis("y", label = "Stock's closing share (U$)", axisLabelColor = "#229954") %>%
+  dyEvent("2003-10-01", "D. Rousseff  |  PBR chairman", labelLoc = "top") %>%
+  dyEvent("2007-11-01", "PBR | pre-salt discovery", labelLoc = "top") %>%
+  dyEvent("2011-01-01", "D. Rousseff  |  elected Brazil's president", labelLoc = "top") %>%
+  dyEvent("2012-01-01", "Maria G. Foster  |  PBR chief executive", labelLoc = "top") %>%
+  dyEvent("2012-08-01", "PBR  |  first quaterly loss in 13 years", labelLoc = "top") %>%
+  dyEvent("2013-09-01", "PBR | gross debts more than $135bn", labelLoc = "top") %>%
+  dyEvent("2014-01-01", "PBR director Paulo Roberto Costa  |  arrested (corruption)", labelLoc = "top") %>%
+  dyEvent("2014-05-01", "Car Wash  |  operation starts", labelLoc = "top") %>%
+  dyEvent("2014-09-01", "Paulo R. Costa  |  name other involveds in corruption", labelLoc = "top") %>%
+  dyEvent("2015-02-01", "Aldir Bendine | PBR CEO after M. Foster and others resign", labelLoc = "top") %>%
+  dyEvent("2015-05-01", "Nestor Cervero (former PBR director | arrested for money laundering", labelLoc = "top") %>%
+  dyEvent("2016-08-01", "D. Rousseff  |  impeached", labelLoc = "top") %>%
+  dyEvent("2017-07-01", "Lula (former Brazil's president) | imprisioned for corruption", labelLoc = "top") %>%
+  dyShading(from = "2014-02-15", to = "2015-08-15", color = "#FADBD8") %>% 
+  dyRangeSelector()
+
+```
+
+
+
+
+
+
+
+
+
