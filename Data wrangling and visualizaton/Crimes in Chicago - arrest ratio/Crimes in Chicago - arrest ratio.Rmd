@@ -1,0 +1,110 @@
+---
+title: "Chicago crimes"
+author: "Gustavo Hideo Higa Correa"
+date: "March 30, 2019"
+output:
+  html_document:  
+    keep_md: true
+    #toc: true
+    #toc_float: true
+    code_folding: hide
+    fig_height: 6
+    fig_width: 12
+    fig_align: 'center'
+theme: cosmo
+editor_options: 
+  chunk_output_type: console
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+
+This visualization reflects reported incidents of crime that ocurred in the city of Chicago in 2018. The data source is the Chicago Police Department's CLEAR (Citizen Law Enforcement Analysis and Reporting) system. <br>
+The dataset was downloaded from the [Chicago Data Portal](https://data.cityofchicago.org/).<br>
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(leaflet)
+library(lubridate)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+chicago.r <- read_csv("C:/DataScience/Datasets/Chicago crimes/Crimes-2018.csv") %>%
+      filter(Year == 2018, !is.na(Latitude))
+```
+
+
+```{r, eval=FALSE}
+## Loading data
+
+chicago.r <- read_csv("PATH/.csv") %>%
+      filter(Year == 2018, !is.na(Latitude))
+```
+
+
+
+```{r, message=FALSE, warning=FALSE}
+## Data Wrangling
+
+chicago <- chicago.r %>%
+      select(ID, `Case Number`, Date, `Primary Type`, Description, `Location Description`, Arrest
+          ,`X Coordinate`, `Y Coordinate`, Year, Latitude, Longitude, Location, Block) %>%
+      mutate(DateTime = mdy_hms(Date, tz = "America/Chicago")) %>%
+      mutate(Month = month(DateTime)
+          ,Date = ymd(as.Date(DateTime))
+          ,Hour = hour(DateTime))
+
+
+chicago.crimes <- chicago %>%
+      select(`Primary Type`, Arrest,`Location Description`, Latitude, Longitude) %>%
+      filter(`Primary Type` %in% c("ASSAULT", "CRIM SEXUAL ASSAULT", "KIDNAPPING", "HUMAN TRAFFICKING"
+                                  ,"NARCOTICS", "WEAPONS VIOLATION", "SEX OFFENSE", "PROSTITUTION"
+                                  ,"LIQUOR LAW VIOLATION", "OFFENSE INVOLVING CHILDREN", "MOTOR VEHICLE THEFT"))
+
+# chicago.crimes %>% 
+#       group_by(`Primary Type`) %>%
+#       mutate(total.type = n()) %>%
+#       group_by(`Primary Type`, Arrest) %>%
+#       mutate(perc.arrest = n() / total.type) %>%
+#       ungroup() %>%
+#       unique() %>%
+#       arrange(`Primary Type`, Arrest)
+
+```
+
+
+
+
+
+## Crimes in Chicago - 2018 | <span style="color:blue">Arrested</span> vs <span style="color:red">Not Arrested</span>
+
+Highest ratios when the perpetrator is **not** arrested:
+
+* **Kidnapping:**   <span style="color:red">95.3% </span>
+* **Motor vehicle theft:**   <span style="color:red">94.7% </span>
+* **Sexual assault:**   <span style="color:red">93.7% </span>
+
+```{r, message=FALSE, warning=FALSE}
+chicago.crimes %>%
+      leaflet() %>%
+      addProviderTiles(providers$Stamen.Toner) %>% 
+      addCircleMarkers(lng = ~Longitude, lat = ~Latitude
+                      ,color =  ~ifelse(Arrest == T, "blue", "red")
+                      ,radius = ~4, label = ~`Location Description`
+                      ,group = ~`Primary Type`) %>% 
+      addLayersControl(overlayGroups = ~`Primary Type`
+                      ,options = layersControlOptions(collapsed = FALSE))
+
+```
+
+
+
+
+
+
