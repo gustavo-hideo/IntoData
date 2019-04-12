@@ -16,7 +16,7 @@ from keras.layers import Dense, Dropout, LSTM
 pd.set_option('expand_frame_repr', False)     # show all variables when printing a dataset
 
 # Quandl API: SSEPkWgCjFSkGNqtuy4z
-#quandl.ApiConfig.api_key = "SSEPkWgCjFSkGNqtuy4z"
+#quandl.ApiConfig.api_key = "API_KEY"
 
 data = quandl.get("NSE/TATAGLOBAL", start_date="2015-01-01", end_date="2018-12-31")
 
