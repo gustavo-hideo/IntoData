@@ -1,0 +1,12 @@
+name: Refugees
+title: Refugees
+username:
+account: gustavo-hideo
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 857711
+bundleId: 2006692
+url: https://gustavo-hideo.shinyapps.io/Refugees/
+when: 1555096162.80967
+asMultiple: FALSE
+asStatic: FALSE
