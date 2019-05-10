@@ -20,3 +20,9 @@ untar("tmp.tar.gz")
 
 <br>
 <br>
+
+
+## .dta
+```{r}
+haven::read_dta("path")
+```
