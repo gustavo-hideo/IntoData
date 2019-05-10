@@ -1,0 +1,99 @@
+---
+title: ""
+output:
+  html_document
+theme: cosmo
+---
+
+## R `apply` family {.tabset}
+
+We will use a subset of the `mtcars` dataset
+
+```{r}
+data <- mtcars[, c(1,2,10)]
+```
+
+### apply()
+
+Apply works on arrays and matrices <br>
+
+`apply(x, MARGIN, fun, ...)`
+
+* `x`: array or matrix
+* `MARGIN`: When `=1`, applies over rows. `=2` applies over columns. `=c(1,2)` applies over rows and columns 
+* `fun`: the function to be applied
+
+Example: <br>
+```{r}
+# Creating a matrix
+matrice <- as.matrix(data)
+
+# Mean of each column
+apply(matrice, MARGIN = 2, mean)
+
+```
+
+### lapply()
+
+Lapply works on lists, dataframes and vectors, returning a list of the same length as x <br>
+
+`lapply(x, fun, ...)`
+
+```{r}
+# sum of each column
+lapply(data, sum)
+
+# creating 1 dataframe for each gear
+three <- subset(data, gear == 3)
+four <- subset(data, gear == 4)
+five <- subset(data, gear == 5)
+
+# sum first column of each dataframe
+data.all <- list(three, four, five)    # create a list with all 3 dataframes
+first.col <- lapply(data.all,"[", 1)   # create a list with the first column of each dataframe
+lapply(first.col, sum)
+
+```
+
+
+
+### sapply()
+
+Sapply is a simplified version of `lapply()`, because instead of returning a list, returns a vector (or an array if `simplify = array`, or a list just like `lapply()` if `simplify = F`) <br>
+
+`sapply(x, fun, ..., simplify = T)` <br>
+
+```{r}
+# return the first element of the second row on each dataframe - data.all
+sapply(data.all, "[", 2, 1)
+
+# the same as above but as a list
+sapply(data.all, "[", 2, 1, simplify = F)
+
+```
+
+
+
+### mapply()
+
+"Multivariate apply".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

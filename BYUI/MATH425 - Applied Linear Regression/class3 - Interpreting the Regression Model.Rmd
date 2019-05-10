@@ -1,0 +1,55 @@
+---
+title: "Class 3 | Interpreting the Regression Model"
+author: "Gustavo Hideo"
+date: "April 26, 2019"
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+
+
+data <- mosaicData::Utilities
+```
+
+
+
+
+
+
+## Interpreting the Estimated Regression Slope
+
+```{r}
+data %>%
+  ggplot(aes(kwh, elecbill)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = F)
+
+```
+
+```{r}
+lm1 <- lm(elecbill ~ kwh, data = data)
+summary(lm1)
+
+```
+
+
+
+## Interpreting the True Regression Slope
+
+$$
+\underbrace{Y_i}_\text{Elec. Bill} = \overbrace{\beta_0 + \beta_1 \underbrace{X_i}_\text{Kwh}} ^ \text{true regression relation} + \epsilon_i \quad \text{where} \ \epsilon_i \sim N(0, \sigma ^ 2)
+$$
+
+
+
+## Interpreting the Regression Slope
+
+
+
+
+
+
+
+

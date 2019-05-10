@@ -1,0 +1,89 @@
+---
+title: "How the world sees the U.S"
+author: "Gustavo Hideo"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+---
+
+
+```{r libs}
+library(tidyverse)
+
+```
+
+
+```{r loads}
+pres <- read_csv("https://query.data.world/s/yry35govi74xsqiecfr3mnbop3iu3j") %>% select(-X40)
+us <- read_csv("https://query.data.world/s/vw4eqkeoo5vrdt2wjzwjppgx4be54n") %>% select(-X40)
+
+```
+
+
+```{r}
+myTheme <- theme(panel.background = element_blank(),
+                 plot.background = element_blank(),
+                 axis.title = element_blank(),
+                 axis.text.y = element_blank(),
+                 axis.ticks = element_blank())
+
+
+colors <- c("Philippines" = "darkorange2",
+            "South Korea" = "forestgreen",
+            "Israel" = "darkorchid4",
+            "Poland" = "gold",
+            "France" = "deepskyblue4",
+            "Mexico" = "deeppink3",
+            "Germany" = "darkorange4",
+            "Russia" = "darkturquoise")
+
+```
+
+
+```{r}
+us.a <- us %>%
+  filter(year >= 2015) %>% 
+  gather("country", "value", Canada:Venezuela) %>% 
+  filter(country %in% c("Philippines", "South Korea", "Israel", "Poland", "France", "Mexico", "Germany", "Russia"),
+         !is.na(value))
+
+us.avg <- us %>% 
+  filter(year >= 2015) %>% 
+  select(year, avg)
+
+```
+
+
+
+
+```{r}
+
+us.a %>% 
+  ggplot(aes(year, value, color = country)) +
+  geom_line(aes(), size = 1) +
+  geom_point(aes(), size = 3) +
+  ggrepel::geom_text_repel(aes(label = ifelse(year == 2015, paste(country, value), "")), 
+                           #hjust = 1.5, 
+                           direction = "y", 
+                           segment.colour = NA,
+                           xlim = c(2014.2, 2014.9)) +
+  ggrepel::geom_text_repel(aes(label = ifelse(year == 2017, value, "")), 
+                           #hjust = -2, 
+                           direction = "y", 
+                           segment.colour = NA,
+                           xlim = c(2017.07, 2017.2)) +
+  scale_color_manual(values = colors, guide = F) +
+  scale_x_continuous(limits = c(2014.2, 2017.5),
+                     breaks = c(2015, 2016, 2017),
+                     labels = c(2015, 2016, 2017)) +
+  ylim(c(0,100)) +
+  myTheme
+  
+  
+
+```
+
+
+
+
+

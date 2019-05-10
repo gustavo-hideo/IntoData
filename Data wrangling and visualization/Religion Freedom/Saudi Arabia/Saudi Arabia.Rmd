@@ -1,0 +1,268 @@
+---
+title: "Saudi Arabia | 2007-2016"
+output: 
+  html_document:
+    theme: cosmo
+    code_folding: hide
+---
+
+
+## Religion Persecution {.tabset}
+
+### Description
+
+![](C:/DataScience/IntoData/Data wrangling and visualization/Religion Freedom/Saudi Arabia/saudiFlag.jpg)
+
+On the last April 23rd, 2019, Saudi Arabia executed 37 people, most of them [Shia Muslims](https://www.cfr.org/backgrounder/shia-muslims-mideast) (minority religion). Dr. Tenzin Dorjee, Chair of the Comission (United States) said *"The Saudi government's execution of minority Shia Muslims on the basis of their religious identity and peaceful activism is not only shocking, but also directly contradicts the government's official narrative of working towards greater modernisation and improving religious freedom conditions"*. <br>
+<br>
+
+
+Read more about the executions on [Aljazeera](https://www.aljazeera.com/news/2019/04/commission-asks-punish-saudi-arabia-shia-executions-190427054817729.html). <br>
+<br>
+
+Saudi Arabia owns a position among the countries in the world with higher religious persecution. The visualizations bellow compare Saudi Arabia with other countries with high religous persecution from each continent. <br>
+<br>
+
+Data collected from: [Pew-Templeton | Global Religous Futures Project](http://www.globalreligiousfutures.org/). 
+You will see two measurements: 
+
+  * Government Restrictions
+  * Social Hostilities
+  
+The measures range from 0-10. See the next tab (`Data`) for more details about the data. <br>
+<br>
+
+
+### Visualizations
+
+
+```{r, include=FALSE}
+library(tidyverse)
+library(gganimate)
+library(plotly)
+```
+
+```{r, include=FALSE}
+saudi.raw <- read_csv("https://query.data.world/s/ajnfqt3kegqcircvihkuh7oosxm25o") %>% 
+  select(Year, Country, Continent, `Social Hostilities`, `Government Restrictions`) %>% 
+  filter(!is.na(Year)) %>% 
+  mutate(Country = case_when(Country == "World" ~ "World Average", TRUE ~ Country),
+         Continent = case_when(Continent == "World" ~ "World Average", TRUE ~ Continent))
+
+saudi <- saudi.raw %>% 
+  gather(Issue, Value, `Social Hostilities`:`Government Restrictions`)
+
+
+colors <- c("Americas" = "cornflowerblue",
+            "Africa" = "palegreen3",
+            "Asia"= "tomato",
+            "Europe" = "lightgoldenrod2",
+            "Oceania" = "tan1",
+            "World Average" = "grey30")
+
+```
+
+
+
+
+
+```{r, warning=FALSE}
+saudi %>% 
+  filter(Country == "Saudi Arabia") %>% 
+  ggplot(aes(Year, Value)) +
+  geom_line(stat = "identity", aes(linetype = Issue), color = "darkgreen", size = 1.2) +
+  geom_line(data = saudi %>% filter(Country == "World Average"),
+            stat = "identity", aes(linetype = Issue), color = "black", size = 1) +
+  geom_line(data = saudi %>% filter(!Country %in% c("Saudi Arabia", "World Average")),
+            stat = "identity", aes(group = Country), color = "black", alpha = .15) +
+  geom_text(label = "Saudi Arabia", x = 2015, y = 6.5, color = "darkgreen", size = 3) +
+  geom_text(label = "World Average", x = 2015, y = 2.3, color = "black", size = 3) +
+  labs(y = "Level of Persecution") +
+  theme(legend.position = c(0.8,0.95),
+        legend.direction = "vertical",
+        legend.title = element_blank(),
+        legend.box.background = element_blank(),
+        legend.background = element_blank(),
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks = element_blank())
+
+```
+
+
+<br>
+<br>
+<br>
+<br>
+
+
+
+```{r, eval=FALSE, warning=FALSE}
+
+gif.saudi.gov <- saudi %>% 
+  filter(Issue == "Government Restrictions") %>% 
+  group_by(Year) %>%
+  mutate(rank = rank(Value, ties.method="first")) %>% 
+  ungroup() %>% 
+  mutate(saudi = ifelse(Country == "Saudi Arabia", 1, 0)) %>% 
+  ggplot(aes(rank, group = Country, fill = Continent)) +
+  geom_bar(stat = 'identity', aes(y = Value, alpha = saudi)) +
+  geom_text(aes(label = Country, y = Value, alpha = saudi), position = position_dodge(0.1), size = 3) +
+  scale_alpha(range = c(0.5,1), guide = F) +
+  scale_fill_manual(values = colors) +
+  labs(subtitle = '{closest_state}',
+       y = "Government RestrictionsSocial Hostilities") +
+  coord_flip(expand = T) + #clip = "off", expand = FALSE) +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        legend.key.size = unit(0.4, "cm"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10, color = "black"),
+        title = element_text(size = 15, face = "bold", colour = "blue")) +
+  transition_states(Year, transition_length = 5, state_length = 1) +
+  ease_aes('cubic-in-out') +
+  #ease_aes('linear') +
+  #ease_aes('quadratic-in-out') +
+  enter_fade() +
+  exit_shrink()
+
+
+animate(gif.saudi.gov, fps = 25, duration = 45, width = 800, height = 600, renderer = gifski_renderer("saudi_gov.gif"))
+
+```
+
+
+
+
+
+![](C:/DataScience/IntoData/Data wrangling and visualization/Religion Freedom/Saudi Arabia/saudi_gov.gif)
+
+<br>
+<br>
+
+
+
+
+```{r, eval=FALSE, warning=FALSE}
+gif.saudi <- saudi %>% 
+  filter(Issue == "Social Hostilities") %>% 
+  group_by(Year) %>%
+  mutate(rank = rank(Value, ties.method="first")) %>% 
+  ungroup() %>% 
+  mutate(saudi = ifelse(Country == "Saudi Arabia", 1, 0)) %>% 
+  ggplot(aes(rank, group = Country, fill = Continent)) +
+  geom_bar(stat = 'identity', aes(y = Value, alpha = saudi)) +
+  geom_text(aes(label = Country, y = Value, alpha = saudi), position = position_dodge(0.1), size = 3) +
+  scale_alpha(range = c(0.5,1), guide = F) +
+  scale_fill_manual(values = colors) +
+  labs(subtitle = '{closest_state}',
+       y = "Social Hostilities") +
+  coord_flip(expand = T) + #clip = "off", expand = FALSE) +
+  theme(axis.line.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        panel.background = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        legend.key.size = unit(0.4, "cm"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10, color = "black"),
+        title = element_text(size = 15, face = "bold", colour = "firebrick")) +
+  transition_states(Year, transition_length = 5, state_length = 1) +
+  ease_aes('cubic-in-out') +
+  #ease_aes('linear') +
+  #ease_aes('quadratic-in-out') +
+  enter_fade() +
+  exit_shrink()
+
+
+animate(gif.saudi, fps = 25, duration = 45, width = 800, height = 600, renderer = gifski_renderer("saudi.gif"))
+
+
+
+```
+
+
+
+![](C:/DataScience/IntoData/Data wrangling and visualization/Religion Freedom/Saudi Arabia/saudi.gif)
+
+
+<br>
+<br>
+<br>
+<br>
+
+
+
+
+```{r, warning=FALSE}
+
+# Scatterplot
+
+
+p <- saudi.raw %>%
+  plot_ly(
+    x = ~`Social Hostilities`,
+    y = ~`Government Restrictions`,
+    size = ~ifelse(Country == "Saudi Arabia" | Country == "World Average", 4, 1),
+    color = ~Continent,
+    colors = ~colors,
+    frame = ~Year,
+    type = "scatter",
+    mode = "markers",
+    text = ~Country,
+    hoverinfo = "text",
+    showlegend = T
+  )
+
+p %>% 
+  animation_opts(frame = 2000, transition = 2000) %>% 
+ # animation_button(x = 1, xanchor = "right", y = 0, yanchor = "bottom") %>% 
+  animation_slider(currentvalue = list(prefix = "Year ", font = list(color = "darkgreen"))
+  )
+```
+
+
+
+
+
+
+### Data
+
+
+This page presents comparisons of governamental and social religious persecution between Saudi Arabia and other countries with high level of religious restrictions from each continent. <br>
+<br>
+
+
+The **Government Restrictions** Index (GRI) measures -- on a 10-point scale -- government laws, policies and actions that restrict religious beliefs or practices. The GRI is comprised of 20 measures of restrictions, including:
+
+  * efforts by governments to ban particular faiths
+  * prohibit conversions
+  * limit preaching or give preferential treatment to one or more religious groups
+  
+<br>
+<br>
+
+The **Social Hostilities** Index (SHI) measures -- on a 10-point scale -- acts of religious hostility by private individuals, organizations and social groups. The SHI includes 13 measures of social hostilities, some of those are:
+
+  * mob or sectarian violence
+  * harassment over attire for religious reasons
+  * other religion-related intimidation or abuse
+
+<br>
+
+For more on the methodology for the Global Restrictions on Religion studies, see [About the Data](http://www.globalreligiousfutures.org/explorer/about-GRF-data).
+
+
+
+```{r, warning=FALSE}
+DT::datatable(saudi.raw)
+```
+

@@ -1,0 +1,330 @@
+---
+output:
+  revealjs::revealjs_presentation:
+    theme: night
+    transition: convex
+    css: notes-style.css
+---
+
+
+```{r, include=FALSE}
+library(tidyverse)
+
+
+myTheme <- theme(panel.background = element_rect(fill = "black", color = "black"),
+                 plot.background = element_rect(fill = "black", color = "black"),
+                 axis.title = element_text(color = "white"),
+                 axis.text = element_text(color = "white"),
+                 panel.grid = element_blank(),
+                 legend.position = "none",
+                 title = element_text(colour = "white"))
+```
+## **Linear Regression**
+
+### Gustavo Hideo H. Correa
+
+
+```{r, fig.height = 4, fig.width = 6}
+mtcars %>% 
+  ggplot(aes(wt, mpg)) +
+  geom_point(aes(),color = "lightsteelblue4") +
+  geom_smooth(method = "lm", se = T, color = "steelblue") +
+  myTheme
+
+```
+
+
+
+
+# **Linear Regression | Interpretation**
+
+## **Linear Regression | Interpretation** 
+
+<br>
+
+$$
+Y_i = \overbrace{\underbrace{\beta_0}_\text{intercept} + \underbrace{\beta_1}_\text{slope} X_i + \epsilon_i} ^ \text{true regression relation}
+\quad \text{where} \ \epsilon_i \sim N(0, \sigma^2)
+$$
+<br>
+
+----
+
+**Intercept**
+
+The average `Y` value when `X` is `0`.
+
+
+<br>
+
+**Slope**
+
+The change in the average `Y` value for each unit increase in `X`
+
+<br>
+
+**Error**
+
+The difference form the data point and the **true line** (unknown line)
+
+<br>
+
+**Sigma**
+Standard deviation of the error
+
+<br>
+
+
+## Model Parameters
+
+```{r, include=FALSE}
+X <- 1
+Y <- 1
+```
+
+**Slope** <br>
+
+```{r, message=FALSE, warning=FALSE}
+b_1 <- sum( X*(Y - mean(Y)) ) / sum( (X - mean(X))^2 )
+```
+
+<br>
+**Intercept** <br>
+
+```{r, message=FALSE, warning=FALSE}
+b_0 <- mean(Y) - b_1*mean(X)
+```
+
+<br>
+
+$\hat{Y}$ is the estimator of $E\{Y\}$. <br>
+
+$$
+\hat{Y}_i = b_0 + b_1 X_i
+$$
+
+$$
+E\{Y\} = \beta_0 + \beta_1 X_i
+$$
+
+
+
+
+
+
+
+
+
+# **Numerical Summaries**
+
+
+## **Residuals**
+
+Difference from the data point to the **estimate line** (known line) <br>
+
+----
+
+$$
+\underbrace{Y_i}_\text{data point} - \underbrace{\hat{Y}_i}_\text{estimated Y (line)}
+$$
+
+
+```{r, fig.height = 3, fig.width = 5}
+d <- mtcars
+fit <- lm(mpg ~ wt, data = d)
+d$predicted <- predict(fit)
+d$residuals <- residuals(fit)
+
+d %>% 
+  ggplot(aes(wt, mpg)) +
+  geom_point(aes(),color = "lightsteelblue4") +
+  geom_smooth(method = "lm", se = F, color = "steelblue") +
+  geom_segment(aes(xend = wt, yend = predicted), color = "lightsteelblue4") +
+  myTheme
+
+```
+
+**Residual Std. Error**
+The smaller the best, showing that the data does not deviate much from the average Y (line).
+
+```{r}
+lm1 <- lm(mpg ~ wt, data = mtcars)
+sqrt(sum(lm1$residuals ^ 2) / 30)
+```
+
+
+
+
+
+
+
+
+## Sum fo squares
+
+
+**Sum of Squared Errors (SSE)** <br>
+Measures how much the residuals deviate from the line <br>
+<br>
+
+**Sum of Squares Regression (SSR)** <br>
+Measures how much the regression line deviates from the aveage y-value <br>
+<br>
+
+**Total Sum of Squares (SSTO)** <br>
+Measures how much the y-values deviate from the average y-value <br>
+$ SSTO = SSE + SSR$
+<br>
+
+**Multiple R-squared (R^2)** <br>
+It's the proportion of variation in `Y` explained by the regression model
+$ SSR / SSTO $
+<br>
+
+**Correlation (r)** <br>
+$ \sqrt{R^2} $
+
+
+
+
+
+
+----
+
+ `cars`
+
+```{r}
+lm.cars.1 <- lm(dist ~ speed, data = cars)
+```
+
+**SSE**
+
+```{r}
+sse <- sum((cars$dist - lm.cars.1$fit)^2)
+sse
+```
+
+<br>
+
+**SSR**
+
+```{r}
+ssr <- sum((lm.cars.1$fit - mean(cars$dist))^2)
+ssr
+```
+
+<br>
+
+**SSTP**
+
+```{r}
+ssto <- sum((cars$dist - mean(cars$dist))^2)
+ssto
+```
+
+**Multiple R-squared (R^2)**
+
+```{r}
+R2 <- ssr / ssto
+# or
+R2.b <- 1 - (sse / ssto)
+
+R2
+```
+
+**Correlation (r)**
+
+```{r}
+r <- sqrt(R2)
+r
+```
+
+  
+  
+
+
+
+## Variance
+
+```{r}
+x = c(5, 15, 2, 29, 35, 24, 25, 39)
+
+var(x)
+
+avg <- mean(x)
+
+# Variance:
+((x[1] - avg)^2 + (x[2] - avg)^2 + (x[3] - avg)^2 + (x[4] - avg)^2 + (x[5] - avg)^2 + (x[6] - avg)^2 + (x[7] - avg)^2 + (x[8] - avg)^2) / (length(x) - 1)
+```
+
+
+
+
+
+
+
+# Regression Assumptions
+
+----
+
+1. The regression relation between `Y` and `X` is linear
+2. The error term are normally distributed with $E\{\epsilon_i\} = 0$
+3. The variance of the error terms is constant over all `X` values
+4. The `X` values can be considered fixed and measured without error
+5. The error terms are independent
+
+$$
+Y_i = \underbrace{\beta_0 + \beta_1 \overbrace{X_i}^\text{#4}}_\text{#1} + \epsilon_i \quad \text{where} \ \overbrace{\epsilon_i \sim}^\text{#5} \underbrace{N\{0}_\text{#2}, \overbrace{\sigma^2}^\text{#3}\}
+$$
+
+----
+
+### Residuals versus Fitted-values Plot
+Checks assumptions #1 and #3<br>
+  
+  * **#1 - Linear relation:** no apparent trends in the plot
+  * **#3 - Constant variance:** the vertical spread of the residuals remains roughly consistent across all fitted values
+  
+```{r, fig.height = 2, fig.width = 3}
+lm1 %>% 
+  ggplot(aes(lm1$fit, lm1$residuals)) +
+  geom_point(color = "white") +
+  labs(title = "Linear relation but the variance is not very constant") +
+  myTheme +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank())
+```
+
+----  
+  
+### Q-Q Plot of the Residuals
+Checks assumption #2<br>
+  * **#2 - Error term is normally distributed:** the QQ-Plot or histogram shows a normal distribution
+
+```{r, fig.height = 4, fig.width = 6}
+par(bg = "black", col = "white", col.main = "white", col.lab = "white")
+qqnorm(mtcars$mpg,
+       ylab = "Observed", pch = 16,main = "Right skewed")
+qqline(mtcars$mpg)
+hist(mtcars$mpg, col = "white", main = "")
+
+```
+
+----
+
+### Residuals versus Order Plot
+Checks assumption #5<br>
+  * **#5 - Error is independent:** if plotting residuals and the order they were collected shows trends, the model is violated
+  
+```{r}
+
+
+```
+
+  
+  
+  
+  
+  
+
+
+
