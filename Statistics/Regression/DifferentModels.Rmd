@@ -1,0 +1,931 @@
+---
+title: Different Models
+author: Gustavo Hideo Higa Corea
+output: 
+  html_document:
+    theme: cosmo
+    code_folding: hide
+    fig_width: 12
+---
+
+
+# {.tabset}
+
+```{r, include=FALSE}
+library(tidyverse)
+
+
+
+
+myTheme <- theme(panel.background = element_blank(),
+                 panel.grid = element_blank(),
+                 legend.title = element_blank(),
+                 legend.key = element_blank(),
+                 legend.position = c(0.15, 0.95),
+                 legend.direction = "horizontal",,
+                 legend.key.width = unit(1, "cm"),
+                 plot.title = element_text(hjust = 0))
+
+set.seed(101)
+
+```
+
+
+
+
+
+## Quadratic Model {.tabset}
+
+The quadratic model adds a **quadratic term**, that is $\beta_2 X_i^2$, to the simple model. Like this:
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \beta_2 X_i^2 + \epsilon_i
+$$
+
+See below how, in this case, the quadratic model can get closer to the true model compared to a simple model, using simulated and real world data. Also, check how the $R^2$ changes.
+
+```{r, include=FALSE}
+n <- 300
+
+X_i <- runif(n, 12, 45) 
+beta0 <- 8 #Our choice for the y-intercept. 
+beta1 <- 55 #Our choice for the slope. 
+beta2 <- -1.1
+sigma <- 180.5 #Our choice for the std. deviation of the error terms.
+epsilon_i <- rnorm(n, 0, sigma) 
+Y_i <- beta0 + beta1*X_i + beta2*X_i^2 + epsilon_i 
+```
+
+
+### Simulated data {.tabset}
+
+```{r}
+
+fabData <- data.frame(y=Y_i, x=X_i) 
+
+
+fab.lm.s <- lm(y ~ x, data = fabData)
+b.s <- fab.lm.s$coefficients
+r2.s <- round(summary(fab.lm.s)$r.squared, 3)
+
+
+fab.lm <- lm(y ~ x + I(x^2), data=fabData) #Fit an estimated regression model to the fabData.
+#pander::pander(summary(fab.lm)) #Summarize your model. 
+r2 <- round(summary(fab.lm)$r.squared, 3)
+b <- fab.lm$coefficients
+
+
+r2.increase <- round(r2 - r2.s, 3)
+
+
+
+# Simple regression
+p1 <- fabData %>% 
+  ggplot(aes(x, y, linetype = "")) +
+  geom_point(aes(), alpha = .3) +
+    
+  stat_function(fun = function(x) beta0 + beta1*x + beta2*x^2, col = "blue", size = 1) +   #true line
+  stat_function(fun = function(x) b.s[1] + b.s[2]*x, col = "firebrick", size = 1, linetype = 1) +    # estimated line
+    
+  annotate("text", label = paste("R^2 == ", r2.s), x = 40, parse = T, y = 1000, color = "firebrick") +
+  labs(title = "Simple model") +
+  scale_linetype_manual(name = "",
+                        values = 2,
+                        labels = "True model") +
+  myTheme
+
+
+
+
+
+p2 <- fabData %>% 
+  ggplot(aes(x, y, linetype = "")) +
+  geom_point(color = "grey50", alpha = .5) +
+    
+  stat_function(fun = function(x) beta0 + beta1*x + beta2*x^2, col = "blue", size = 1) +   #true line
+  stat_function(fun = function(x) b[1] + b[2]*x + b[3]*x^2, col = "firebrick", size = 1, linetype = 1) +    # estimated line
+    
+  annotate("text", label = paste("R^2 == ", r2), x = 40, parse = T, y = 1000, color = "firebrick") +
+  labs(title = "Quadratic model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  scale_linetype_manual(name = "",
+                        values = 2,
+                        labels = "True model") +
+  myTheme +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(fab.lm.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Quadratic Model
+
+```{r}
+pander::pander(summary(fab.lm))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm.s, which = 1)
+plot(fab.lm.s, which = 2)
+plot(fab.lm.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The plots above shows that the regression is linear, with constant variance and independent error terms.
+
+<br>
+
+
+#### Assumptions for Quadratic Model
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm, which = 1)
+plot(fab.lm, which = 2)
+plot(fab.lm.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+
+<br>
+
+The residuals vs fitted plot gets even better than before with a more linear model and more constant in variance of residuals.
+
+
+<br>
+
+
+
+### Real data  {.tabset}
+
+The dataset used for the regression below is panel from 1963 to 1992 of cigarette consumption in U.S. See how the $R^2$ changes when we use the quadratic model compared to the simple model. Check in the summary how the quadratic model decreases the `Residual Standard Error`, representing the overall distance from the fitted model to the data points.
+
+```{r}
+
+cigar <- Ecdat::Cigar
+
+lm.c.s <- lm(pimin ~ year, data = cigar)
+#pander::pander(summary(lm.c.s))
+bc.s <- lm.c.s$coefficients
+r2.s <- round(summary(lm.c.s)$r.squared, 3)
+
+lm.c <- lm(pimin ~ year + I(year^2), data = cigar)
+#pander::pander(summary(lm.c))
+bc <- lm.c$coefficients
+r2 <- round(summary(lm.c)$r.squared, 3)
+
+
+r2.increase <- round(r2 - r2.s, 3)
+
+p1 <- cigar %>%
+  ggplot(aes(year, pimin)) +
+  geom_point(alpha = .3) +
+  stat_function(fun = function(x) bc.s[1] + bc.s[2]*x, color = "firebrick", size = 1) +
+  annotate("text", label = paste("R^2 == ", r2.s), x = 80, parse = T, y = 150, color = "firebrick") +
+  myTheme +
+  labs(x = "Year",
+       y = "Minimum price per pack - pimin",
+       title = "Simple Model")
+
+
+
+p2 <- cigar %>%
+  ggplot(aes(year, pimin)) +
+  geom_point(alpha = .3) +
+  stat_function(fun = function(x) bc[1] + bc[2]*x + bc[3]*x^2, color = "firebrick", size = 1) +
+  annotate("text", label = paste("R^2 == ", r2), x = 80, parse = T, y = 150, color = "firebrick") +
+  myTheme +
+  labs(x = "Year",
+       title = "Quadratic Model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(lm.c.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Quadratic Model
+
+```{r}
+pander::pander(summary(lm.c))
+```
+
+
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.c.s, which = 1)
+plot(lm.c.s, which = 2)
+plot(lm.c.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+
+The residuals vs fitted plot shows that the model is not linear and the variance is not constant. 
+
+
+<br>
+
+#### Assumptions for Quadratic Model
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.c, which = 1)
+plot(lm.c, which = 2)
+plot(lm.c$residuals)
+par(mfrow = c(1, 1))
+```
+
+
+<br>
+
+The linearity improves compared to the simple model, but the variance is still not constant.
+
+
+
+<br>
+
+
+
+
+
+
+
+
+## Cubic Model {.tabset}
+
+The **Cubic Model** differs from the simple model by using the `x` variable 3 times: $\beta_1X_i$, $\beta_2X_i^2$ and $\beta_3X_i^3$. The $X_i^3$ is called the `cubic term`. <br>
+See below the mathematical model for the cubic model:
+
+$$
+Y_i = \beta_0 + \beta_1X_i + \beta_2X_i^2 + \beta_3X_i^3 + \epsilon_i
+$$
+
+Check in the comparisons below, first using a simulated data (to see how close we can get from the **true model**) and later with a real world dataset, how the cubic model helps to improve our model.
+
+
+```{r, include=FALSE}
+
+n <- 200
+
+X_i <- runif(n, -30, 35) 
+
+beta0 <- 50
+beta1 <- 10
+beta2 <- .5
+beta3 <- -.2
+sigma <- 800
+
+epsilon_i <- rnorm(n, 0, sigma) 
+
+Y_i <- beta0 + beta1*X_i + beta2*X_i^2 + beta3*X_i^3 + epsilon_i 
+
+fabData <- data.frame(y=Y_i, x=X_i)
+
+```
+
+
+
+### Simulated data {.tabset}
+
+```{r}
+
+fab.lm3.s <- lm(y ~ x, data = fabData)
+r2.s <- round(summary(fab.lm3.s)$r.squared, 3)
+b3.s <- fab.lm3.s$coefficients
+
+
+fab.lm3 <- lm(y ~ x + I(x^2) + I(x^3), data = fabData)
+#pander::pander(summary(fab.lm3))
+r2 <- round(summary(fab.lm3)$r.squared, 3)
+b3 <- fab.lm3$coefficients
+
+r2.increase <- round(r2 - r2.s, 3)
+
+
+
+p1 <- fabData %>% 
+  ggplot(aes(x, y, linetype = "")) +
+  geom_point(alpha = .3) +
+  
+  stat_function(fun = function(x) beta0 + beta1*x + (beta2)*x^2 + (beta3)*x^3, 
+                col = "blue", size = 1) +   #true line
+  stat_function(fun = function(x) b3.s[1] + b3.s[2]*x, col = "firebrick", size = 1, linetype = 1) +
+  
+  annotate("text", label = paste("R^2 == ", r2.s), x = 25, parse = T, y = 3500, color = "firebrick") +
+  labs(title = "Simple model") +
+  scale_linetype_manual(values = 2,
+                        labels = "True model") +
+  myTheme
+
+
+
+p2 <- fabData %>% 
+  ggplot(aes(x, y, linetype = "")) +
+  geom_point(alpha = .3) +
+  
+  stat_function(fun = function(x) beta0 + beta1*x + (beta2)*x^2 + (beta3)*x^3, 
+                col = "blue", size = 1) +   #true line
+  stat_function(fun = function(x) b3[1] + b3[2]*x + b3[3]*x^2 + b3[4]*x^3, col = "firebrick", size = 1, linetype = 1) +
+  
+  annotate("text", label = paste("R^2 == ", r2.s), x = 25, parse = T, y = 3500, color = "firebrick") +
+  labs(title = "Cubic model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  myTheme +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  scale_linetype_manual(values = 2,
+                        labels = "True model")
+
+
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(fab.lm3.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Cubic Model
+
+```{r}
+pander::pander(summary(fab.lm3))
+```
+
+
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm3.s, which = 1)
+plot(fab.lm3.s, which = 2)
+plot(fab.lm3.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The residuals vs fitted plot shows that the model is not linear and the variance is not constant. 
+
+
+<br>
+
+
+#### Assumptions for Cubic Model
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm3, which = 1)
+plot(fab.lm3, which = 2)
+plot(fab.lm3$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The quadratic model shows a great improvement on the linearity and constancy of the variance showed in the residuals vs fitted plot (with the exception of a few outliers). The qq-plot and residuals vs order plot stay good as before.
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+### Real data {.tabset}
+
+The dataset used below contain data for body temperature series of two beavers. We will use the temperature (`temp`) in Celcius degrees and the time of the day (`time`) when the temperature was collected.
+
+```{r}
+
+beavers <- beaver2 %>% 
+  filter(time >= 500)
+
+lm.b.s <- lm(temp ~ time, data = beavers)
+#pander::pander(summary(lm.b.s))
+r2.s <- summary(lm.b.s)$r.squared
+b.s <- lm.b.s$coefficients
+
+lm.b <- lm(temp ~ time + I(time^2) + I(time^3), data = beavers)
+#pander::pander(summary(lm.b))
+r2 <- summary(lm.b)$r.squared
+b <- lm.b$coefficients
+
+
+r2.increase <- round(r2 - r2.s, 3)
+
+
+# simple model
+p1 <- beavers %>% 
+  ggplot(aes(time, temp)) +
+  geom_point(alpha = .5) +
+  stat_function(fun = function(x) b.s[1] + b.s[2]*x, col = "firebrick", size = 1) +
+  annotate("text", label = paste("R^2 == ", r2.s), x = 2200, parse = T, y = 38.5, color = "firebrick") +
+  myTheme +
+  labs(x = "Time of the day - time",
+       title = "Simple model")
+
+
+
+# cubic model
+p2 <- beavers %>% 
+  ggplot(aes(time, temp)) +
+  geom_point(alpha = .5) +
+  stat_function(fun = function(x) b[1] + b[2]*x + b[3]*x^2 + b[4]*x^3, col = "firebrick", size = 1) +
+  annotate("text", label = paste("R^2 == ", r2), x = 2200, parse = T, y = 38.5, color = "firebrick") +
+  myTheme +
+  labs(x = "Time of the day - time",
+       title = "Cubic model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(lm.b.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Cubic Model
+
+```{r}
+pander::pander(summary(lm.b))
+```
+
+
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.b.s, which = 1)
+plot(lm.b.s, which = 2)
+plot(lm.b.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The assumptions are not satisfied. The residuals vs fitted plot shows that the model is not linear and the $Y$ variance is not constant. The qq-plot shows that the data is not normally distributed. The residuals vs order plot shows how the error-term is not independent.
+
+
+<br>
+
+
+#### Assumptions for Cubic Model
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.b, which = 1)
+plot(lm.b, which = 2)
+plot(lm.b$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The assumptions don't change much compared to the simple model.
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Two-Lines Model {.tabset}
+
+The **Two-line model** uses a quantitative $X_{1i}$ variable and a qualitative variable (e.g. "0,1", "treated, untreated", "male, female", etc) $X_{2i}$.<br>
+The mathematical model is writen as follows:
+
+$$
+Y_i = \beta_0 + \beta_1 X_{1i} + \beta_{2} \underbrace{X_{2i}}_\text{groups 0 and 1} + \beta_{3} \underbrace{X_{1i} X_{2i}}_\text{interactive term} + \epsilon_i
+$$
+
+Check in the comparisons below, first using a simulated data (to see how close we can get from the **true model**) and later with a real world dataset, how the two-line model helps to improve our model by increasing $R^2$ and decreasing `Residual standard error`.
+
+
+```{r, include=FALSE}
+
+
+n <- 200
+
+X_i <- runif(n, -45, 45) 
+Z_i <- sample(c(0, 1), n, replace = T)
+
+beta0 <- 350
+beta1 <- 7
+beta2 <- -18.6
+beta3 <- -3.8
+sigma <- 65
+
+epsilon_i <- rnorm(n, 0, sigma) 
+
+Y_i <- beta0 + beta1*X_i + beta2*Z_i + beta3*X_i*Z_i + epsilon_i 
+
+fabData <- data.frame(y=Y_i, x=X_i, z=as.integer(Z_i))
+
+```
+
+
+
+### Simulated data {.tabset}
+
+The R-squared for the Two-line model represents the average R-squared from both lines
+
+```{r}
+
+
+fab.lm.s <- lm(y ~ x, data = fabData)
+b.s <- fab.lm.s$coefficients
+r2.s <- round(summary(fab.lm.s)$r.squared, 3)
+
+
+
+fab.lm <- lm(y ~ x + z + x:z, data = fabData)
+b <- fab.lm$coefficients
+r2 <- round(summary(fab.lm)$r.squared, 3)
+
+
+
+r2.increase <- round(r2 - r2.s, 3)
+
+
+
+
+
+
+
+p1 <- fabData %>% 
+  ggplot(aes(x, y, linetype = "")) +
+  geom_point(alpha = .3) +
+  #scale_color_manual(values = c("firebrick", "blue"), guide = F) +
+  
+  stat_function(fun = function(x) (beta0+beta2) + (beta1+beta3)*x, col = "blue", size = .8) +
+  stat_function(fun = function(x) b.s[1] + b.s[2]*x, col = "firebrick", size = .8, linetype = 1) +
+  
+  annotate("text", label = paste("R^2 == ", r2.s), x = 10, parse = T, y = 630, color = "firebrick") +
+  labs(title = "Simple model") +
+  scale_linetype_manual(values = 2,
+                        labels = "True model") +
+  myTheme
+
+
+
+
+p2 <- fabData %>% 
+  ggplot(aes(x, y, color = factor(z), linetype = "")) +
+  geom_point(alpha = .3) +
+  scale_color_manual(values = c("firebrick", "blue"), guide = F) +
+  # Group 0
+  stat_function(fun = function(x) beta0 + beta1*x, col = "black", size = .8) +  # true line
+  stat_function(fun = function(x) b[1] + b[2]*x, col = "firebrick", size = .8, linetype = 1) +  # estimated line
+  # Group 1
+  stat_function(fun = function(x) (beta0+beta2) + (beta1+beta3)*x, col = "black", size = .8) +  # true line
+  stat_function(fun = function(x) (b[1]+b[3]) + (b[2]+b[4])*x, col = "blue", size = .8, linetype = 1) +  # estimated line
+  
+  annotate("text", label = paste("R^2 == ", r2), x = 10, parse = T, y = 630, color = "firebrick") +
+  labs(title = "Two-Lines model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  myTheme +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  scale_linetype_manual(values = 2,
+                 labels = "True model")
+  
+
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(fab.lm.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Two-lines Model
+
+
+
+```{r}
+pander::pander(summary(fab.lm))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm.s, which = 1)
+plot(fab.lm.s, which = 2)
+plot(fab.lm.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+All the assumptions are apparently good. The model is linear, constant variance for Y-values (with a few exceptions of outliers), normally distributed, and error terms are independent.
+
+<br>
+
+
+#### Assumptions for Two-lines Model
+
+
+```{r}
+par(mfrow = c(1, 3))
+plot(fab.lm, which = 1)
+plot(fab.lm, which = 2)
+plot(fab.lm$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+
+With the exception of a couple of outliers, the model is linear with constant variance. The other plots look good. 
+
+
+<br>
+
+
+
+
+
+
+
+### Real data {.tabset}
+
+The dataset used in the model below contains data on enzymatic reaction involving untreated cells or cells treated with Puromycin. We will use the reaction rates (`rate`), the substrate concentration (`conc`) and treatment (`state`)
+
+The R-squared for the Two-line model represents the average R-squared from both lines
+
+```{r}
+
+lm.t.s <- lm(rate ~ I(log(conc)), data = Puromycin)
+bt.s <- lm.t.s$coefficients
+r2.s <- round(summary(lm.t.s)$r.squared, 3)
+
+
+
+
+lm.p <- lm(rate ~ I(log(conc)) + state + I(log(conc)):state, data = Puromycin)
+#pander::pander(summary(lm.p))
+b <- lm.p$coefficients
+r2 <- round(summary(lm.p)$r.squared, 3)
+
+
+
+r2.increase <- round(r2 - r2.s, 3)
+
+
+
+
+
+
+
+p1 <- Puromycin %>%
+  ggplot(aes(log(conc), rate)) +
+  geom_point(alpha = .5) +
+  stat_function(fun = function(x) bt.s[1] + bt.s[2]*x, col = "firebrick", size = 1) +
+  #scale_color_manual(values = c("firebrick", "blue")) +
+  annotate("text", label = paste("R^2 == ", r2.s), x = -1, parse = T, y = 190, color = "firebrick") +
+  labs(x = "Concentration (ppm) - conc",
+       y = "Rates - rate",
+       title = "Simple model") +
+  myTheme
+       
+
+
+p2 <- Puromycin %>%
+  ggplot(aes(log(conc), rate, color = state)) +
+  geom_point(alpha = .5) +
+  
+  # Treated group
+  stat_function(fun = function(x) b[1] + b[2]*x, color = "firebrick", size = .8) +
+  # Unreated group
+  stat_function(fun = function(x) (b[1]+b[3]) + (b[2]+b[4])*x, color = "blue", size = .8) +
+  
+  scale_color_manual(values = c("firebrick", "blue")) +
+  annotate("text", label = paste("R^2 == ", r2), x = -1, parse = T, y = 190, color = "firebrick") +
+  
+  labs(x = "Concentration (ppm) - conc",
+       y = "Rates - rate",
+       title = "Two-lines model",
+       subtitle = paste("Increase of", r2.increase, "in R-squared")) +
+  myTheme +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+  
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+
+
+
+
+
+
+<br>
+<br>
+<br>
+
+#### Summary Simple Model
+
+```{r}
+pander::pander(summary(lm.t.s))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Summary Two-lines Model
+
+
+
+
+```{r}
+pander::pander(summary(lm.p))
+```
+
+
+<br>
+<br>
+<br>
+
+#### Assumptions for Simple Model
+
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.t.s, which = 1)
+plot(lm.t.s, which = 2)
+plot(lm.t.s$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The residuals vs fitted plot and qq-plot look fairly good. The residuals vs order plot clearly shows that the error terms for this model is not independent.
+
+<br>
+
+
+#### Assumptions for Two-lines Model
+
+
+
+```{r}
+par(mfrow = c(1, 3))
+plot(lm.p, which = 1)
+plot(lm.p, which = 2)
+plot(lm.p$residuals)
+par(mfrow = c(1, 1))
+```
+
+<br>
+
+The residuals vs fitted plot shows how the model is linear and the variance is constant, with the exception of a couple of outliers. The qq-plot shows that the distribution is skewed. The error terms can be considered independent.
+
+
+
+<br>
+
+
+
+
+
+
+
+
+
+

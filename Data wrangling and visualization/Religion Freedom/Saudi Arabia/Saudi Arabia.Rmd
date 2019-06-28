@@ -7,7 +7,7 @@ output:
 ---
 
 
-## Religion Persecution {.tabset}
+## Religious Persecution {.tabset}
 
 ### Description
 

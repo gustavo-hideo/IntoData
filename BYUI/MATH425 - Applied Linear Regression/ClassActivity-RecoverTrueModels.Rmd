@@ -1,0 +1,306 @@
+---
+title: "Recovering a True Model"
+output: 
+  html_document:
+    theme: cerulean
+    code_folding: hide
+---
+
+```{r, message=FALSE, warning=FALSE}
+p1Data <- read.csv("./Data/p1Data.csv", header=TRUE)
+p2Data <- read.csv("./Data/p2Data.csv", header=TRUE)
+p3Data <- read.csv("./Data/p3Data.csv", header=TRUE)
+```
+
+## Part 1 - Recovering a True Model (Beginner Level)
+
+We believe the true model to be... (found after doing all of the work below...)
+
+$$
+  Y_i = \underbrace{\beta_0 + \beta_1 X4_i + \beta_2 X2_i X4_i}_\text{The True Model} + \epsilon_i
+$$
+
+And estimate that model by...
+
+$$
+  \hat{Y}_i = -0.7065 + 2.3958 X4_i + 1.7763 X2_i X4_i
+$$
+
+with our estimate of $\sigma$ as ...
+
+```{r}
+pairs(p1Data)
+```
+
+In looking at the above plot, X4, X2, and maybe even X1 show some structure with Y.
+
+Let's begin with X4.
+
+```{r}
+plot(Y ~ X4, data=p1Data)
+lm1 <- lm(Y ~ X4, data=p1Data)
+summary(lm1)
+pairs(cbind(R=lm1$res,Fit=lm1$fitted.values,p1Data))
+```
+
+Looking at the above, the R vs. Fit plot shows some structure, meaning something else is still going on, but X4 cannot explain it. Looks like X2 could offer some further insight.
+
+```{r}
+plot(Y ~ X4, data=p1Data, col=as.factor(X2))
+lm2 <- lm(Y ~ X4 + X2, data=p1Data)
+summary(lm2)
+pairs(cbind(R=lm2$res,Fit=lm2$fitted.values,p1Data), col=as.factor(p1Data$X2))
+```
+
+Let's check for an interaction between X2 and X4.
+
+```{r}
+plot(Y ~ X4, data=p1Data, col=as.factor(X2))
+lm3 <- lm(Y ~ X4 + X2 + X4:X2, data=p1Data)
+summary(lm3)
+
+```
+
+Looks much better by R-squared value, but X2 base term no longer significant. How does the model look if we remove X2?
+
+```{r}
+lm4 <- lm(Y ~ X4 + X4:X2, data=p1Data)
+summary(lm4)
+pairs(cbind(R=lm4$res,Fit=lm4$fitted.values,p1Data), col=as.factor(p1Data$X2))
+```
+
+I like it. Let's end the search.
+
+```{r}
+par(mfrow=c(1,3))
+plot(lm4, which=1:2)
+plot(lm4$res)
+```
+
+
+What if we took a wrong turn and went for the quartic model on X4 instead of the interaction of X2:X4 model?
+
+Maybe not a wrong turn actually... better R-squared.
+
+```{r}
+lmOther <- lm(Y ~ X4 + X2 + I(X4^2) + I(X4^3) + I(X4^4), data=p1Data)
+summary(lmOther)
+plot(Y ~ X4, data=p1Data, col=factor(X2))
+b <- coef(lmOther)
+x2 <- 0
+curve(b[1] + b[2]*x + b[3]*x2 + b[4]*x^2 + b[5]*x^3 + b[6]*x^4, add=TRUE, col="black")
+x2 <- 1
+curve(b[1] + b[2]*x + b[3]*x2 + b[4]*x^2 + b[5]*x^3 + b[6]*x^4, add=TRUE, col="red")
+```
+
+
+## Part 2 - Recovering a True Model (Intermediate Level)
+
+We believe the true model to be... (found after all of the work below...)
+
+$$
+  Y_i = \underbrace{\beta_0 + \beta_1 X5_i + \beta_2 X5^2_i + \beta_3 X3_i}_\text{The True Model} + \epsilon_i
+$$
+
+And estimate that model by...
+
+$$
+  \hat{Y}_i = 3.76 + 8.29 X5_i + 1.69 X5^2_i + 2.39 X3_i
+$$
+
+with our estimate of $\sigma$ as ...
+
+```{r}
+pairs(p2Data)
+```
+
+It's quite clear that X5 with a quadratic term is needed.
+
+```{r}
+lm1 <- lm(Y ~ X5, data=p2Data)
+pairs(cbind(R=lm1$res,Fit=lm1$fitted.values,p2Data))
+lm2 <- lm(Y ~ X5 + I(X5^2), data=p2Data)
+summary(lm2)
+```
+
+Even though we already had a great model, one last check reveals a surprising result that X3 would add a great deal more information to the model.
+
+```{r}
+pairs(cbind(R=lm2$res,Fit=lm2$fitted.values,p2Data))
+```
+
+Add X3.
+
+```{r}
+lm3 <- lm(Y ~ X5 + I(X5^2) + X3, data=p2Data)
+summary(lm3)
+pairs(cbind(R=lm3$res,Fit=lm3$fitted.values,p2Data))
+```
+
+Looks like we are done. However, just to try a few more quick ideas...
+
+```{r}
+pairs(cbind(R=lm3$res,Fit=lm3$fitted.values,p2Data), col=as.factor(p2Data$X2))
+pairs(cbind(R=lm3$res,Fit=lm3$fitted.values,p2Data), col=as.factor(p2Data$X7))
+```
+
+Does anything in X7 add anything?
+
+```{r}
+summary(lm(Y ~ X5 + I(X5^2) + X3 + factor(X7), data=p2Data))
+```
+
+Nothing. Leave it alone.
+
+
+## Part 3 - Recovering a True Model (Advanced Level)
+
+We believe the true model to be...
+
+$$
+  Y_i = \underbrace{\beta_0 + \beta_1 X6_i + \beta_2 X8_i + \beta_3 X15_i + \beta_4 X6_i X8_i + \beta_5 X6_i X15_i + \beta_6 X8_i X15_i + \beta_7 X6_i X8_i X15_i}_\text{The True Model} + \epsilon_i
+$$
+
+And estimate that model by...
+
+$$
+  \hat{Y}_i = -3.712 + 1.956 X6_i + 2.63 X8_i + 9.59 X15_i + 1.557 X6_i X8_i - 4.522 X6_i X15_i -5.12 X8_i X15_i + 1.82 X6_i X8_i X15_i
+$$
+
+with our estimate of $\sigma$ as ... 0.8219 (the residual standard error).
+
+Here is how we came up with that guess...
+
+```{r, fig.height=10, fig.width=10}
+#using ```{r, fig.height=10, fig.width=10} in the R-chunk header allows use to zoom on in this pairs plot when we knit the file.
+pairs(p3Data)
+```
+
+Start by using X6 in the model.
+
+```{r}
+lm1 <- lm(Y ~ X6, data=p3Data)
+summary(lm1)
+```
+
+Color by X6.
+
+```{r, fig.height=10, fig.width=10}
+pairs(cbind(R=lm1$res,Fit=lm1$fitted.values,p3Data), col=as.factor(p3Data$X6))
+```
+
+Looks like X8 matters in an interaction way.
+
+```{r}
+lm2 <- lm(Y ~ X6 + X8 + X6:X8, data=p3Data)
+summary(lm2)
+```
+
+Drop X6? 
+
+```{r}
+lm3 <- lm(Y ~ X8 + X6:X8, data=p3Data)
+summary(lm3)
+```
+
+Drop X8?
+
+```{r}
+lm4 <- lm(Y ~ X6:X8, data=p3Data)
+summary(lm4)
+```
+
+Hmm... X6 isn't quite capturing everything that is happening inside of X8. 
+
+```{r, fig.height=10, fig.width=10}
+pairs(cbind(R=lm4$res,Fit=lm4$fitted.values,p3Data), col=as.factor(p3Data$X6))
+```
+
+Let's try coloring by some of the other discrete variables, like X15 (looks promising!) and X18 (not so useful).
+
+```{r, fig.height=10, fig.width=10}
+pairs(cbind(R=lm4$res,Fit=lm4$fitted.values,p3Data), col=as.factor(p3Data$X15))
+```
+
+
+```{r, fig.height=10, fig.width=10}
+pairs(cbind(R=lm4$res,Fit=lm4$fitted.values,p3Data), col=as.factor(p3Data$X18))
+```
+
+Try adding X15 and X15:X8...
+
+```{r}
+lm5 <- lm(Y ~ X6:X8 + X15 + X15:X8, data=p3Data)
+summary(lm5)
+```
+
+Now to draw the model, which is getting fairly involved. In fact, with X6, X8, and X15 our regression model is in four-dimensional space (including Y). However, since X6 and X15 can only take on two possible values, we can use color and plotting symbol to show three dimensions of explanatory variables in a single 2D plot by using X8 as the x-axis, X6 as the color of the dots, and X15 as the plotting character of the dots. The graphic is somewhat interpretable.
+
+```{r}
+plot(Y ~ X8, data=p3Data, pch=c(16,1)[as.factor(X15)], col=as.factor(X6))
+b <- coef(lm5)
+# Note how the following code replaces X8 with "x" because X8 is being 
+# used as the x-axis of the plot.
+x15 <- 0 #pch=16
+x6 <- 0 #col="black"
+curve(b[1] + b[2]*x15 + b[3]*x6*x + b[4]*x*x15, add=TRUE, lty=1, col="black")
+
+x15 <- 0 #pch=16
+x6 <- 1 #col="red"
+curve(b[1] + b[2]*x15 + b[3]*x6*x + b[4]*x*x15, add=TRUE, lty=1, col="red")
+
+x15 <- 1 #pch=1
+x6 <- 0 #col="black"
+curve(b[1] + b[2]*x15 + b[3]*x6*x + b[4]*x*x15, add=TRUE, lty=3, col="black")
+
+x15 <- 1 #pch=1
+x6 <- 1 #col="red"
+curve(b[1] + b[2]*x15 + b[3]*x6*x + b[4]*x*x15, add=TRUE, lty=3, col="red")
+
+```
+
+Notice how the solid red line and dotted black line fit their respective data quite well. However, the dotted red line and solid black line do not do a very good job. This hints that our model is missing some terms. Let's try the full interaction model of X6, X8, and X15, which surprisingly shows all terms significant!
+
+```{r}
+lm6 <- lm(Y ~ X6*X8*X15, data=p3Data)
+summary(lm6)
+```
+
+Now to draw it...
+
+```{r}
+plot(Y ~ X8, data=p3Data, pch=c(16,1)[as.factor(X15)], col=as.factor(X6))
+b <- coef(lm6)
+b #b has 8 terms in it.
+
+# Note how the following code replaces X8 with "x" because X8 is being 
+# used as the x-axis of the plot.
+
+x15 <- 0 #pch=16
+x6 <- 0 #col="black"
+curve(b[1] + b[2]*x6 + b[3]*x + b[4]*x15 + b[5]*x6*x + b[6]*x6*x15 + b[7]*x*x15 + b[8]*x6*x*x15, add=TRUE, lty=1, col="black")
+
+x15 <- 0 #pch=16
+x6 <- 1 #col="red"
+curve(b[1] + b[2]*x6 + b[3]*x + b[4]*x15 + b[5]*x6*x + b[6]*x6*x15 + b[7]*x*x15 + b[8]*x6*x*x15, add=TRUE, lty=1, col="red")
+
+x15 <- 1 #pch=1
+x6 <- 0 #col="black"
+curve(b[1] + b[2]*x6 + b[3]*x + b[4]*x15 + b[5]*x6*x + b[6]*x6*x15 + b[7]*x*x15 + b[8]*x6*x*x15, add=TRUE, lty=3, col="black")
+
+x15 <- 1 #pch=1
+x6 <- 1 #col="red"
+curve(b[1] + b[2]*x6 + b[3]*x + b[4]*x15 + b[5]*x6*x + b[6]*x6*x15 + b[7]*x*x15 + b[8]*x6*x*x15, add=TRUE, lty=3, col="red")
+
+```
+
+Now that is fitting quite nicely!
+
+One last check...
+
+```{r, fig.height=10, fig.width=10}
+pairs(cbind(R=lm6$res,Fit=lm6$fitted.values,p3Data), col=interaction(p3Data$X15,p3Data$X6))
+```
+
+Nothing obvious at this point, and the Residuals vs Fitted values plot looks good enough. Let's call it quits and state our final guess. (Back at the top of this section.)
+

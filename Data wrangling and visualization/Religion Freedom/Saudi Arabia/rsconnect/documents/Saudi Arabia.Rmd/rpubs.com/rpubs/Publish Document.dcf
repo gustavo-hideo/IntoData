@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/494950/97e4ddf3c8cf4f2090cdd1f56198698e
+bundleId: https://api.rpubs.com/api/v1/document/494950/97e4ddf3c8cf4f2090cdd1f56198698e
+url: http://rpubs.com/gustavo_hideo/494950
+when: 1557460871.96783
