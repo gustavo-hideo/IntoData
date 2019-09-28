@@ -51,7 +51,7 @@ gun %>%
 <br>
 <br>
 
-#### $66.7%$ of gun deaths are suicides
+#### $66.7\%$ of gun deaths are suicides
 
 
 ```r

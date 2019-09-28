@@ -1,7 +1,7 @@
 ---
 title: "Gun Deaths in America"
 author: "Gustavo Hideo H. Correa"
-date: "`r format(Sys.time(), '%B %d, %Y')`"
+date: "February 26, 2019"
 output:
   html_document:  
     keep_md: true
@@ -64,7 +64,7 @@ gun %>%
 <br>
 <br>
 
-#### $66.7%$ of gun deaths are suicides
+#### $66.7\%$ of gun deaths are suicides
 
 ```{r}
 
