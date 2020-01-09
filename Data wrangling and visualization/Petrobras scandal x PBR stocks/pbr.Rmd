@@ -44,7 +44,7 @@ stocks <- c("PBR")
 invest <- stocks %>%
   tq_get(get = "stock.prices"
          ,from = "2003-01-01"
-         ,to = today()) %>%
+         ,to = "2019-06-01") %>%
   select(date, close)
 
 
@@ -59,7 +59,7 @@ invest.a <- xts(invest$close, order.by = invest$date)
 ### <span style ="color:red">Red period:</span> $29$ arrests related to scandal
 
 ```{r}
-invest.a %>%
+p <- invest.a %>%
   dygraph() %>% 
   dySeries(label = "Close", fillGraph = T, axis = "y", color = "#27AE60") %>% 
   dyOptions(drawGrid = F) %>%   # removing grids and avoid scientific notation
@@ -79,6 +79,10 @@ invest.a %>%
   dyEvent("2017-07-01", "Lula (former Brazil's president) | imprisioned for corruption", labelLoc = "top") %>%
   dyShading(from = "2014-02-15", to = "2015-08-15", color = "#FADBD8") %>% 
   dyRangeSelector()
+
+p
+
+htmlwidgets::saveWidget(p, file="./pbrviz.html", selfcontained=T)
 
 ```
 

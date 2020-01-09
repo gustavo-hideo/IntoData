@@ -74,7 +74,7 @@ saudi %>%
   geom_line(data = saudi %>% filter(Country == "World Average"),
             stat = "identity", aes(linetype = Issue), color = "black", size = 1) +
   geom_line(data = saudi %>% filter(!Country %in% c("Saudi Arabia", "World Average")),
-            stat = "identity", aes(group = Country), color = "black", alpha = .15) +
+            stat = "identity", aes(group = Country), color = "black", alpha = .08) +
   geom_text(label = "Saudi Arabia", x = 2015, y = 6.5, color = "darkgreen", size = 3) +
   geom_text(label = "World Average", x = 2015, y = 2.3, color = "black", size = 3) +
   labs(y = "Level of Persecution") +
