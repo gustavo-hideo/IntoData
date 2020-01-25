@@ -12,7 +12,7 @@ Created on Fri Jan 17 16:48:27 2020
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-#from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder
 from statistics import mode
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
